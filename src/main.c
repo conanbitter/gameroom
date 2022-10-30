@@ -6,7 +6,7 @@
 HBITMAP hBMP;
 
 void OnLoad() {
-    hBMP = (HBITMAP)LoadImage(NULL, L"test.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    // hBMP = (HBITMAP)LoadImage(NULL, L"test.bmp", IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
 }
 
 void OnDraw(HDC hdc) {
@@ -49,6 +49,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
     OnLoad();
+    hBMP = (HBITMAP)LoadImage(hInstance, L"bmBack", IMAGE_BITMAP, 0, 0, 0);
 
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
