@@ -50,8 +50,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     screenSize.cx = GetSystemMetrics(SM_CXSCREEN);
     screenSize.cy = GetSystemMetrics(SM_CYSCREEN);
 
-    winX = (screenSize.cx - (WIN_W + GetSystemMetrics(SM_CXBORDER) * 2)) / 2;
-    winY = (screenSize.cy - (WIN_H + GetSystemMetrics(SM_CYBORDER) + GetSystemMetrics(SM_CYCAPTION))) / 2;
+    winX = (screenSize.cx - WIN_W) / 2;
+    winY = (screenSize.cy - WIN_H) / 2;
 
     RECT winRect = {.left = winX, .top = winY, .right = winX + WIN_W, .bottom = winY + WIN_H};
 
