@@ -1,4 +1,2 @@
 .vscode
 build
-res
-!res/resource.rc
