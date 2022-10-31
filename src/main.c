@@ -20,6 +20,9 @@ void OnDraw(HDC hdc) {
 LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
+    // Enable DPI awarenes to remove blur
+    SetProcessDPIAware();
+
     // Register the window class.
 
     WNDCLASSEX wc;
