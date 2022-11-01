@@ -79,7 +79,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     }
 
     OnLoad();
-    hBMP = (HBITMAP)LoadImage(hInstance, L"bmBack", IMAGE_BITMAP, 0, 0, 0);
+    hBMP = (HBITMAP)LoadImage(hInstance, L"bmMinefield", IMAGE_BITMAP, 0, 0, 0);
 
     ShowWindow(hwnd, nCmdShow);
     UpdateWindow(hwnd);
