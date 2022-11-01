@@ -9,8 +9,8 @@ add_executable(gameroom
     src/main.c
 )
 
+target_link_options(gameroom PRIVATE -SUBSYSTEM:WINDOWS)
+
 if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-    target_link_options(gameroom PRIVATE -SUBSYSTEM:WINDOWS -s)
-else()
-    target_link_options(gameroom PRIVATE -SUBSYSTEM:WINDOWS)
+    set_property(TARGET gameroom PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
 endif()
