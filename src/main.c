@@ -93,6 +93,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
         DispatchMessage(&msg);
     }
 
+    DeleteObject(hBMP);
     DestroyWindow(hwnd);
     UnregisterClass(CLASS_NAME, hInstance);
 
