@@ -7,6 +7,8 @@ set(EXECUTABLE_OUTPUT_PATH ./${CMAKE_BUILD_TYPE})
 add_executable(gameroom
     res/resource.rc
     src/main.c
+    src/appwindow.h
+    src/appwindow.c
 )
 
 target_link_options(gameroom PRIVATE -SUBSYSTEM:WINDOWS)
