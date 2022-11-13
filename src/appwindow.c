@@ -3,7 +3,25 @@
 #define CLASS_NAME L"GameRoom"
 #define WIN_STYLE (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
 
+void dummyOnDraw(HDC hdc, LPPAINTSTRUCT ps) {}
+void dummyCallback() {}
+
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
+static DrawCallback callbackOnDraw = &dummyOnDraw;
+static CommonCallback callbackOnLoad = &dummyCallback;
+static CommonCallback callbackOnExit = &dummyCallback;
+
+void appSetClbDraw(DrawCallback draw_callback) {
+    callbackOnDraw = draw_callback;
+}
+
+void appSetClbLoad(CommonCallback load_callback) {
+    callbackOnLoad = load_callback;
+}
+
+void appSetClbExit(CommonCallback exit_callback) {
+    callbackOnExit = exit_callback;
+}
 
 int appStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
     SetProcessDPIAware();
@@ -91,6 +109,15 @@ int appStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
+        case WM_CREATE:
+            callbackOnLoad();
+            return 0;
+
+        case WM_CLOSE:
+            callbackOnExit();
+            DestroyWindow(hwnd);
+            return 0;
+
         case WM_DESTROY:
             PostQuitMessage(0);
             return 0;
@@ -100,6 +127,8 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
             HDC hdc = BeginPaint(hwnd, &ps);
 
             FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+
+            (*callbackOnDraw)(hdc, &ps);
 
             EndPaint(hwnd, &ps);
         }

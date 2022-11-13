@@ -11,7 +11,7 @@ void OnLoad() {
     hBMP = (HBITMAP)LoadImage(app_instance, L"bmMinefield", IMAGE_BITMAP, 0, 0, 0);
 }
 
-void OnDraw(HDC hdc) {
+void OnDraw(HDC hdc, LPPAINTSTRUCT ps) {
     HDC hdcMem;
     HGDIOBJ oldBitmap;
     BITMAP bitmap;
@@ -34,6 +34,10 @@ void OnFinish() {
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     app_instance = hInstance;
+
+    appSetClbDraw(&OnDraw);
+    appSetClbLoad(&OnLoad);
+    appSetClbExit(&OnFinish);
 
     appStart(app_instance, L"Minefield", 320, 320);
     return 0;
