@@ -8,6 +8,7 @@ HBITMAP hBMP;
 HINSTANCE app_instance;
 
 void OnLoad() {
+    // Load main atlas
     hBMP = (HBITMAP)LoadImage(app_instance, L"bmMinefield", IMAGE_BITMAP, 0, 0, 0);
 }
 
