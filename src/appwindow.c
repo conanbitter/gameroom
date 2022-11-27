@@ -11,6 +11,12 @@ static DrawCallback callbackOnDraw = &dummyOnDraw;
 static CommonCallback callbackOnLoad = &dummyCallback;
 static CommonCallback callbackOnExit = &dummyCallback;
 
+static int isLoaded = 0;
+static HBRUSH backgroundBrush;
+static uint8_t bgrR = 0;
+static uint8_t bgrG = 0;
+static uint8_t bgrB = 0;
+
 void appSetClbDraw(DrawCallback draw_callback) {
     callbackOnDraw = draw_callback;
 }
@@ -21,6 +27,17 @@ void appSetClbLoad(CommonCallback load_callback) {
 
 void appSetClbExit(CommonCallback exit_callback) {
     callbackOnExit = exit_callback;
+}
+
+void gfxSetBackgroundColor(uint8_t r, uint8_t g, uint8_t b) {
+    if (isLoaded) {
+        DeleteObject(backgroundBrush);
+        backgroundBrush = CreateSolidBrush(RGB(r, g, b));
+    } else {
+        bgrR = r;
+        bgrG = g;
+        bgrB = b;
+    }
 }
 
 int appStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
@@ -110,6 +127,8 @@ int appStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
         case WM_CREATE:
+            backgroundBrush = CreateSolidBrush(RGB(bgrR, bgrG, bgrB));
+            isLoaded = 1;
             callbackOnLoad();
             return 0;
 
@@ -126,7 +145,7 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(hwnd, &ps);
 
-            FillRect(hdc, &ps.rcPaint, (HBRUSH)(COLOR_WINDOW + 1));
+            FillRect(hdc, &ps.rcPaint, backgroundBrush);
 
             (*callbackOnDraw)(hdc, &ps);
 

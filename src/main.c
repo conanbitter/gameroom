@@ -40,6 +40,8 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     appSetClbLoad(&OnLoad);
     appSetClbExit(&OnFinish);
 
+    gfxSetBackgroundColor(50, 50, 70);
+
     appStart(app_instance, L"Minefield", 320, 320);
     return 0;
 }

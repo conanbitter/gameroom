@@ -14,4 +14,6 @@ void appSetClbDraw(DrawCallback draw_callback);
 void appSetClbLoad(CommonCallback load_callback);
 void appSetClbExit(CommonCallback exit_callback);
 
+void gfxSetBackgroundColor(uint8_t r, uint8_t g, uint8_t b);
+
 #endif
