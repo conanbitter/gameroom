@@ -1,4 +1,4 @@
-#include "appwindow.h"
+#include "grf.h"
 
 #define CLASS_NAME L"GameRoom"
 #define WIN_STYLE (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)

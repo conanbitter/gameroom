@@ -1,6 +1,6 @@
 #define WIN32_LEAN_AND_MEAN
 #define UNICODE
-#include "appwindow.h"
+#include "grf.h"
 #include <windows.h>
 #include <stdint.h>
 
