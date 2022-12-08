@@ -36,7 +36,7 @@ void grfSetFrameSize(int width, int height);
 void grfSetTitle(const char* title);
 
 void appSetClbDraw(DrawCallback draw_callback);
-void grfSetOnUpdate(callback, speed);
+void grfSetOnUpdate(UpdateCallback update_callback, float speed);
 void grfSetUpdateEnabled(int enabled);
 void grfSetOnMouseMove(MouseMoveCallback move_callback);
 void grfSetOnMouseDown(MouseButtonCallback mouse_callback);
