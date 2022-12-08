@@ -37,11 +37,11 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     app_instance = hInstance;
 
     appSetClbDraw(&OnDraw);
-    appSetClbLoad(&OnLoad);
-    appSetClbExit(&OnFinish);
+    grfSetOnLoad(&OnLoad);
+    grfSetOnExit(&OnFinish);
 
-    gfxSetBackgroundColor(50, 50, 70);
+    grfSetClearColor(50, 50, 70);
 
-    appStart(app_instance, L"Minefield", 320, 320);
+    grfStart(app_instance, L"Minefield", 320, 320);
     return 0;
 }

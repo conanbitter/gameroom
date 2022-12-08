@@ -21,15 +21,15 @@ void appSetClbDraw(DrawCallback draw_callback) {
     callbackOnDraw = draw_callback;
 }
 
-void appSetClbLoad(CommonCallback load_callback) {
+void grfSetOnLoad(CommonCallback load_callback) {
     callbackOnLoad = load_callback;
 }
 
-void appSetClbExit(CommonCallback exit_callback) {
+void grfSetOnExit(CommonCallback exit_callback) {
     callbackOnExit = exit_callback;
 }
 
-void gfxSetBackgroundColor(uint8_t r, uint8_t g, uint8_t b) {
+void grfSetClearColor(uint8_t r, uint8_t g, uint8_t b) {
     if (isLoaded) {
         DeleteObject(backgroundBrush);
         backgroundBrush = CreateSolidBrush(RGB(r, g, b));
@@ -40,7 +40,7 @@ void gfxSetBackgroundColor(uint8_t r, uint8_t g, uint8_t b) {
     }
 }
 
-int appStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
+int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
     SetProcessDPIAware();
 
     WNDCLASSEX wc;
