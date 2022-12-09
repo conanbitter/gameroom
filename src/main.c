@@ -4,12 +4,12 @@
 #include <windows.h>
 #include <stdint.h>
 
-HBITMAP hBMP;
 HINSTANCE app_instance;
+GRFImage img;
 
 void OnLoad() {
     // Load main atlas
-    hBMP = (HBITMAP)LoadImage(app_instance, L"bmMinefield", IMAGE_BITMAP, 0, 0, 0);
+    img = grfLoadImageFromRes(L"bmMinefield");
 }
 
 void OnDraw(HDC hdc, LPPAINTSTRUCT ps) {
@@ -18,10 +18,9 @@ void OnDraw(HDC hdc, LPPAINTSTRUCT ps) {
     BITMAP bitmap;
 
     hdcMem = CreateCompatibleDC(hdc);
-    oldBitmap = SelectObject(hdcMem, hBMP);
+    oldBitmap = SelectObject(hdcMem, img->bitmap);
 
-    GetObject(hBMP, sizeof(bitmap), &bitmap);
-    BitBlt(hdc, 0, 0, bitmap.bmWidth, bitmap.bmHeight, hdcMem, 0, 0, SRCCOPY);
+    BitBlt(hdc, 0, 0, img->width, img->height, hdcMem, 0, 0, SRCCOPY);
 
     SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
@@ -30,7 +29,7 @@ void OnDraw(HDC hdc, LPPAINTSTRUCT ps) {
 }
 
 void OnFinish() {
-    DeleteObject(hBMP);
+    grfFreeImage(img);
 }
 
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {

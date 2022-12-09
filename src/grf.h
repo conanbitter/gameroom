@@ -23,7 +23,14 @@ typedef void (*MouseButtonCallback)(int, int, int);
 typedef void (*MouseMoveCallback)(int, int);
 typedef void (*KeyboardCallback)(int);
 
-typedef HBITMAP GRFImage;
+typedef struct {
+    HBITMAP bitmap;
+    int width;
+    int height;
+} __GRFImageData;
+
+typedef __GRFImageData* GRFImage;
+
 typedef struct {
     int x;
     int y;
@@ -46,8 +53,8 @@ void grfSetOnKeyUp(KeyboardCallback key_callback);
 void grfSetOnLoad(CommonCallback load_callback);
 void grfSetOnExit(CommonCallback exit_callback);
 
-GRFImage grfLoadImage(const char* filename);
-GRFImage grfLoadImageFromRes(const char* filename);
+GRFImage grfLoadImageFromFile(const wchar_t* filename);
+GRFImage grfLoadImageFromRes(const wchar_t* filename);
 void grfFreeImage(GRFImage image);
 
 void grfBeginDraw();

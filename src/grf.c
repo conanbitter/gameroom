@@ -16,6 +16,7 @@ static HBRUSH backgroundBrush;
 static uint8_t bgrR = 0;
 static uint8_t bgrG = 0;
 static uint8_t bgrB = 0;
+static HINSTANCE hInst;
 
 void appSetClbDraw(DrawCallback draw_callback) {
     callbackOnDraw = draw_callback;
@@ -40,8 +41,39 @@ void grfSetClearColor(uint8_t r, uint8_t g, uint8_t b) {
     }
 }
 
+static GRFImage __grfLoadImage(const wchar_t* filename, int fromRes) {
+    GRFImage result = (GRFImage)malloc(sizeof(__GRFImageData));
+    if (fromRes) {
+        result->bitmap = (HBITMAP)LoadImage(hInst, filename, IMAGE_BITMAP, 0, 0, 0);
+    } else {
+        result->bitmap = (HBITMAP)LoadImage(NULL, filename, IMAGE_BITMAP, 0, 0, LR_LOADFROMFILE);
+    }
+
+    BITMAP bitmap;
+    GetObject(result->bitmap, sizeof(bitmap), &bitmap);
+    result->width = bitmap.bmWidth;
+    result->height = bitmap.bmHeight;
+
+    return result;
+}
+
+GRFImage grfLoadImageFromRes(const wchar_t* filename) {
+    return __grfLoadImage(filename, 1);
+}
+
+GRFImage grfLoadImageFromFile(const wchar_t* filename) {
+    return __grfLoadImage(filename, 0);
+}
+
+void grfFreeImage(GRFImage image) {
+    DeleteObject(image->bitmap);
+    free(image);
+}
+
 int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
     SetProcessDPIAware();
+
+    hInst = hInstance;
 
     WNDCLASSEX wc;
     SIZE screenSize;
