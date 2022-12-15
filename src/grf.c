@@ -17,6 +17,7 @@ static uint8_t bgrR = 0;
 static uint8_t bgrG = 0;
 static uint8_t bgrB = 0;
 static HINSTANCE hInst;
+static HWND hWindow;
 
 static HDC backbufferHdc;
 static HBITMAP backbufferBitmap;
@@ -24,22 +25,29 @@ static RECT backbufferRect;
 static int clientWidth;
 static int clientHeight;
 
+static HDC paintHdc;
+static PAINTSTRUCT paintPs;
+static int paintLeft;
+static int paintRight;
+static int paintTop;
+static int paintBottom;
+
 static void CreateBackbufferImage(HDC mainHdc, int width, int height) {
     if (backbufferBitmap) {
         DeleteObject(backbufferBitmap);
-        backbufferBitmap = CreateCompatibleBitmap(mainHdc, width, height);
-        backbufferRect.right = width;
-        backbufferRect.bottom = height;
-        SelectObject(backbufferHdc, backbufferBitmap);
-        FillRect(backbufferHdc, &backbufferRect, backgroundBrush);
     }
+    backbufferBitmap = CreateCompatibleBitmap(mainHdc, width, height);
+    backbufferRect.right = width;
+    backbufferRect.bottom = height;
+    SelectObject(backbufferHdc, backbufferBitmap);
+    FillRect(backbufferHdc, &backbufferRect, backgroundBrush);
 }
 
 static void InitBackbuffer(HDC mainHdc, int width, int height) {
     backbufferRect.left = 0;
     backbufferRect.top = 0;
-    CreateBackbufferImage(mainHdc, width, height);
     backbufferHdc = CreateCompatibleDC(mainHdc);
+    CreateBackbufferImage(mainHdc, width, height);
 }
 
 static void FreeBackbuffer() {
@@ -148,7 +156,7 @@ int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
 
     // Create the window.
 
-    HWND hwnd = CreateWindowEx(
+    hWindow = CreateWindowEx(
         WS_EX_OVERLAPPEDWINDOW,  // Optional window styles.
         CLASS_NAME,              // Window class
         title,                   // Window text
@@ -164,12 +172,12 @@ int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
         NULL        // Additional application data
     );
 
-    if (hwnd == NULL) {
+    if (hWindow == NULL) {
         return -1;
     }
 
-    ShowWindow(hwnd, SW_SHOWNORMAL);
-    UpdateWindow(hwnd);
+    ShowWindow(hWindow, SW_SHOWNORMAL);
+    UpdateWindow(hWindow);
 
     // Run the message loop.
 
@@ -181,11 +189,26 @@ int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
         DispatchMessage(&msg);
     }
 
-    DestroyWindow(hwnd);
+    DestroyWindow(hWindow);
     UnregisterClass(CLASS_NAME, hInstance);
 
     return 0;
 }
+
+void grfBeginDraw() {
+    paintHdc = BeginPaint(hWindow, &paintPs);
+    paintLeft = 0;
+    paintRight = 0;
+    paintTop = 0;
+    paintBottom = 0;
+}
+
+void grfEndDraw() {
+    BitBlt(paintHdc, 0, 0, clientWidth, clientHeight, backbufferHdc, 0, 0, SRCCOPY);
+    EndPaint(hWindow, &paintPs);
+}
+
+
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
@@ -208,15 +231,11 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
             return 0;
 
         case WM_PAINT: {
-            PAINTSTRUCT ps;
-            HDC hdc = BeginPaint(hwnd, &ps);
+            grfBeginDraw();
 
-            FillRect(hdc, &ps.rcPaint, backgroundBrush);
-            BitBlt(hdc, 0, 0, clientWidth, clientHeight, backbufferHdc, 0, 0, SRCCOPY);
+            (*callbackOnDraw)(backbufferHdc, &paintPs);
 
-            (*callbackOnDraw)(hdc, &ps);
-
-            EndPaint(hwnd, &ps);
+            grfEndDraw();
         }
             return 0;
     }
