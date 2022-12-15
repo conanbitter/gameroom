@@ -25,13 +25,8 @@ static RECT backbufferRect;
 static int clientWidth;
 static int clientHeight;
 
-static HDC paintHdc;
 static HDC imageHdc;
-static PAINTSTRUCT paintPs;
-static int paintLeft;
-static int paintRight;
-static int paintTop;
-static int paintBottom;
+static RECT paintRect;
 static int isDrawing = 0;
 
 static void CreateBackbufferImage(HDC mainHdc, int width, int height) {
@@ -200,27 +195,45 @@ int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
 }
 
 void grfBeginDraw() {
-    paintHdc = BeginPaint(hWindow, &paintPs);
-    paintLeft = 0;
-    paintRight = 0;
-    paintTop = 0;
-    paintBottom = 0;
+    paintRect.left = 0;
+    paintRect.right = 0;
+    paintRect.top = 0;
+    paintRect.bottom = 0;
     isDrawing = 1;
 }
 
 void grfEndDraw() {
     isDrawing = 0;
-    BitBlt(paintHdc, 0, 0, clientWidth, clientHeight, backbufferHdc, 0, 0, SRCCOPY);
-    EndPaint(hWindow, &paintPs);
+    InvalidateRect(hWindow, &paintRect, FALSE);
 }
 
 void grfDrawImage(GRFImage image, int x, int y, GRFRect* fragment) {
     if (!isDrawing) return;
     SelectObject(imageHdc, image->bitmap);
+
+    if (x < paintRect.left) {
+        paintRect.left = x;
+    }
+    if (y < paintRect.top) {
+        paintRect.top = y;
+    }
+
     if (fragment) {
         BitBlt(backbufferHdc, x, y, fragment->w, fragment->h, imageHdc, fragment->x, fragment->y, SRCCOPY);
+        if (x + fragment->w > paintRect.right) {
+            paintRect.right = x + fragment->w;
+        }
+        if (y + fragment->h > paintRect.bottom) {
+            paintRect.bottom = x + fragment->h;
+        }
     } else {
         BitBlt(backbufferHdc, x, y, image->width, image->height, imageHdc, 0, 0, SRCCOPY);
+        if (x + image->width > paintRect.right) {
+            paintRect.right = x + image->width;
+        }
+        if (y + image->height > paintRect.bottom) {
+            paintRect.bottom = x + image->height;
+        }
     }
 }
 
@@ -245,11 +258,25 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
             return 0;
 
         case WM_PAINT: {
-            grfBeginDraw();
+            PAINTSTRUCT paintPs;
+            HDC paintHdc;
+
+            paintHdc = BeginPaint(hWindow, &paintPs);
+            BitBlt(paintHdc,
+                   paintPs.rcPaint.left,
+                   paintPs.rcPaint.top,
+                   paintPs.rcPaint.right - paintPs.rcPaint.left,
+                   paintPs.rcPaint.bottom - paintPs.rcPaint.top,
+                   backbufferHdc,
+                   paintPs.rcPaint.left,
+                   paintPs.rcPaint.top,
+                   SRCCOPY);
+            EndPaint(hWindow, &paintPs);
+            /*grfBeginDraw();
 
             (*callbackOnDraw)(backbufferHdc, &paintPs);
 
-            grfEndDraw();
+            grfEndDraw();*/
         }
             return 0;
     }

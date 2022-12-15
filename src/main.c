@@ -15,6 +15,10 @@ void OnLoad() {
     rct.y = 0;
     rct.w = 64;
     rct.h = 64;
+
+    grfBeginDraw();
+    grfDrawImage(img, 10, 10, &rct);
+    grfEndDraw();
 }
 
 void OnDraw(HDC hdc, LPPAINTSTRUCT ps) {
