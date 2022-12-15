@@ -59,7 +59,7 @@ void grfFreeImage(GRFImage image);
 
 void grfBeginDraw();
 void grfEndDraw();
-void grfDrawImage(GRFImage image, GRFRect* fragment);
+void grfDrawImage(GRFImage image, int x, int y, GRFRect* fragment);
 void grfSetFillColor(uint8_t r, uint8_t g, uint8_t b);
 void grfClear();
 void grfFill(GRFRect* area);

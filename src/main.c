@@ -6,14 +6,19 @@
 
 HINSTANCE app_instance;
 GRFImage img;
+GRFRect rct;
 
 void OnLoad() {
     // Load main atlas
     img = grfLoadImageFromRes(L"bmMinefield");
+    rct.x = 32;
+    rct.y = 0;
+    rct.w = 64;
+    rct.h = 64;
 }
 
 void OnDraw(HDC hdc, LPPAINTSTRUCT ps) {
-    HDC hdcMem;
+    /*HDC hdcMem;
     HGDIOBJ oldBitmap;
     BITMAP bitmap;
 
@@ -25,7 +30,8 @@ void OnDraw(HDC hdc, LPPAINTSTRUCT ps) {
     SelectObject(hdcMem, oldBitmap);
     DeleteDC(hdcMem);
     SetBkMode(hdc, TRANSPARENT);
-    TextOut(hdc, 0, 0, L"Hello, Windows!", 15);
+    TextOut(hdc, 0, 0, L"Hello, Windows!", 15);*/
+    grfDrawImage(img, 10, 10, &rct);
 }
 
 void OnFinish() {
@@ -39,7 +45,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     grfSetOnLoad(&OnLoad);
     grfSetOnExit(&OnFinish);
 
-    grfSetClearColor(50, 50, 70);
+    grfSetFillColor(50, 50, 70);
 
     grfStart(app_instance, L"Minefield", 320, 320);
     return 0;

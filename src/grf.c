@@ -26,11 +26,13 @@ static int clientWidth;
 static int clientHeight;
 
 static HDC paintHdc;
+static HDC imageHdc;
 static PAINTSTRUCT paintPs;
 static int paintLeft;
 static int paintRight;
 static int paintTop;
 static int paintBottom;
+static int isDrawing = 0;
 
 static void CreateBackbufferImage(HDC mainHdc, int width, int height) {
     if (backbufferBitmap) {
@@ -47,12 +49,14 @@ static void InitBackbuffer(HDC mainHdc, int width, int height) {
     backbufferRect.left = 0;
     backbufferRect.top = 0;
     backbufferHdc = CreateCompatibleDC(mainHdc);
+    imageHdc = CreateCompatibleDC(mainHdc);
     CreateBackbufferImage(mainHdc, width, height);
 }
 
 static void FreeBackbuffer() {
     DeleteObject(backbufferBitmap);
     DeleteDC(backbufferHdc);
+    DeleteDC(imageHdc);
 }
 
 void appSetClbDraw(DrawCallback draw_callback) {
@@ -67,7 +71,7 @@ void grfSetOnExit(CommonCallback exit_callback) {
     callbackOnExit = exit_callback;
 }
 
-void grfSetClearColor(uint8_t r, uint8_t g, uint8_t b) {
+void grfSetFillColor(uint8_t r, uint8_t g, uint8_t b) {
     if (isLoaded) {
         DeleteObject(backgroundBrush);
         backgroundBrush = CreateSolidBrush(RGB(r, g, b));
@@ -201,14 +205,24 @@ void grfBeginDraw() {
     paintRight = 0;
     paintTop = 0;
     paintBottom = 0;
+    isDrawing = 1;
 }
 
 void grfEndDraw() {
+    isDrawing = 0;
     BitBlt(paintHdc, 0, 0, clientWidth, clientHeight, backbufferHdc, 0, 0, SRCCOPY);
     EndPaint(hWindow, &paintPs);
 }
 
-
+void grfDrawImage(GRFImage image, int x, int y, GRFRect* fragment) {
+    if (!isDrawing) return;
+    SelectObject(imageHdc, image->bitmap);
+    if (fragment) {
+        BitBlt(backbufferHdc, x, y, fragment->w, fragment->h, imageHdc, fragment->x, fragment->y, SRCCOPY);
+    } else {
+        BitBlt(backbufferHdc, x, y, image->width, image->height, imageHdc, 0, 0, SRCCOPY);
+    }
+}
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
