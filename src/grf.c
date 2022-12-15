@@ -18,6 +18,35 @@ static uint8_t bgrG = 0;
 static uint8_t bgrB = 0;
 static HINSTANCE hInst;
 
+static HDC backbufferHdc;
+static HBITMAP backbufferBitmap;
+static RECT backbufferRect;
+static int clientWidth;
+static int clientHeight;
+
+static void CreateBackbufferImage(HDC mainHdc, int width, int height) {
+    if (backbufferBitmap) {
+        DeleteObject(backbufferBitmap);
+        backbufferBitmap = CreateCompatibleBitmap(mainHdc, width, height);
+        backbufferRect.right = width;
+        backbufferRect.bottom = height;
+        SelectObject(backbufferHdc, backbufferBitmap);
+        FillRect(backbufferHdc, &backbufferRect, backgroundBrush);
+    }
+}
+
+static void InitBackbuffer(HDC mainHdc, int width, int height) {
+    backbufferRect.left = 0;
+    backbufferRect.top = 0;
+    CreateBackbufferImage(mainHdc, width, height);
+    backbufferHdc = CreateCompatibleDC(mainHdc);
+}
+
+static void FreeBackbuffer() {
+    DeleteObject(backbufferBitmap);
+    DeleteDC(backbufferHdc);
+}
+
 void appSetClbDraw(DrawCallback draw_callback) {
     callbackOnDraw = draw_callback;
 }
@@ -74,6 +103,8 @@ int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
     SetProcessDPIAware();
 
     hInst = hInstance;
+    clientWidth = width;
+    clientHeight = height;
 
     WNDCLASSEX wc;
     SIZE screenSize;
@@ -160,12 +191,15 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
     switch (uMsg) {
         case WM_CREATE:
             backgroundBrush = CreateSolidBrush(RGB(bgrR, bgrG, bgrB));
+            HDC wdc = GetDC(hwnd);
+            InitBackbuffer(wdc, clientWidth, clientHeight);
             isLoaded = 1;
             callbackOnLoad();
             return 0;
 
         case WM_CLOSE:
             callbackOnExit();
+            FreeBackbuffer();
             DestroyWindow(hwnd);
             return 0;
 
@@ -178,6 +212,7 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
             HDC hdc = BeginPaint(hwnd, &ps);
 
             FillRect(hdc, &ps.rcPaint, backgroundBrush);
+            BitBlt(hdc, 0, 0, clientWidth, clientHeight, backbufferHdc, 0, 0, SRCCOPY);
 
             (*callbackOnDraw)(hdc, &ps);
 
