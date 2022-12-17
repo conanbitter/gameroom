@@ -255,6 +255,37 @@ void grfDrawImage(GRFImage image, int x, int y, GRFRect* fragment) {
     }
 }
 
+void grfClear() {
+    if (!isDrawing) return;
+    FillRect(backbufferHdc, &backbufferRect, backgroundBrush);
+    paintRect.left = 0;
+    paintRect.right = clientWidth;
+    paintRect.top = 0;
+    paintRect.bottom = clientHeight;
+}
+
+void grfFill(GRFRect* area) {
+    if (!isDrawing) return;
+    if (area) {
+        RECT rect = {area->x, area->y, area->x + area->w, area->y + area->h};
+        FillRect(backbufferHdc, &rect, backgroundBrush);
+        if (rect.left < paintRect.left) {
+            paintRect.left = rect.left;
+        }
+        if (rect.top < paintRect.top) {
+            paintRect.top = rect.top;
+        }
+        if (rect.right > paintRect.right) {
+            paintRect.right = rect.right;
+        }
+        if (rect.bottom > paintRect.bottom) {
+            paintRect.bottom = rect.bottom;
+        }
+    } else {
+        grfClear();
+    }
+}
+
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
         case WM_CREATE:

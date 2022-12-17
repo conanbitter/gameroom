@@ -6,7 +6,7 @@
 
 HINSTANCE app_instance;
 GRFImage img;
-GRFRect rct;
+GRFRect rct, oldr;
 
 void OnLoad() {
     // Load main atlas
@@ -15,6 +15,10 @@ void OnLoad() {
     rct.y = 0;
     rct.w = 64;
     rct.h = 32;
+    oldr.x = 100;
+    oldr.y = 100;
+    oldr.w = 64;
+    oldr.h = 32;
 
     grfBeginDraw();
     grfDrawImage(img, 10, 10, &rct);
@@ -39,8 +43,12 @@ void OnMouseUp(int button, int x, int y) {
 
 void OnMouseMove(int x, int y) {
     grfBeginDraw();
+    grfFill(&oldr);
+    // grfClear();
     grfDrawImage(img, x, y, &rct);
     grfEndDraw();
+    oldr.x = x;
+    oldr.y = y;
 }
 
 void OnFinish() {
