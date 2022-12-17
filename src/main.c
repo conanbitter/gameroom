@@ -14,28 +14,33 @@ void OnLoad() {
     rct.x = 32;
     rct.y = 0;
     rct.w = 64;
-    rct.h = 64;
+    rct.h = 32;
 
     grfBeginDraw();
     grfDrawImage(img, 10, 10, &rct);
     grfEndDraw();
 }
 
-void OnDraw(HDC hdc, LPPAINTSTRUCT ps) {
-    /*HDC hdcMem;
-    HGDIOBJ oldBitmap;
-    BITMAP bitmap;
+void OnMouseDown(int button, int x, int y) {
+    rct.x = 32 * button;
+    rct.y = 0;
+    grfBeginDraw();
+    grfDrawImage(img, x, y, &rct);
+    grfEndDraw();
+}
 
-    hdcMem = CreateCompatibleDC(hdc);
-    oldBitmap = SelectObject(hdcMem, img->bitmap);
+void OnMouseUp(int button, int x, int y) {
+    rct.x = 32 * button;
+    rct.y = 32;
+    grfBeginDraw();
+    grfDrawImage(img, x, y, &rct);
+    grfEndDraw();
+}
 
-    BitBlt(hdc, 0, 0, img->width, img->height, hdcMem, 0, 0, SRCCOPY);
-
-    SelectObject(hdcMem, oldBitmap);
-    DeleteDC(hdcMem);
-    SetBkMode(hdc, TRANSPARENT);
-    TextOut(hdc, 0, 0, L"Hello, Windows!", 15);*/
-    grfDrawImage(img, 10, 10, &rct);
+void OnMouseMove(int x, int y) {
+    grfBeginDraw();
+    grfDrawImage(img, x, y, &rct);
+    grfEndDraw();
 }
 
 void OnFinish() {
@@ -45,7 +50,9 @@ void OnFinish() {
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     app_instance = hInstance;
 
-    appSetClbDraw(&OnDraw);
+    grfSetOnMouseDown(&OnMouseDown);
+    grfSetOnMouseUp(&OnMouseUp);
+    grfSetOnMouseMove(&OnMouseMove);
     grfSetOnLoad(&OnLoad);
     grfSetOnExit(&OnFinish);
 

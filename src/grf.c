@@ -1,15 +1,21 @@
 #include "grf.h"
+#include "windowsx.h"
 
 #define CLASS_NAME L"GameRoom"
 #define WIN_STYLE (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
 
 void dummyOnDraw(HDC hdc, LPPAINTSTRUCT ps) {}
 void dummyCallback() {}
+void dummyOnMouseButton(int button, int x, int y) {}
+void dummyOnMouseMove(int x, int y) {}
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static DrawCallback callbackOnDraw = &dummyOnDraw;
 static CommonCallback callbackOnLoad = &dummyCallback;
 static CommonCallback callbackOnExit = &dummyCallback;
+static MouseButtonCallback callbackOnMouseDown = &dummyOnMouseButton;
+static MouseButtonCallback callbackOnMouseUp = &dummyOnMouseButton;
+static MouseMoveCallback callbackOnMouseMove = &dummyOnMouseMove;
 
 static int isLoaded = 0;
 static HBRUSH backgroundBrush;
@@ -64,6 +70,18 @@ void grfSetOnLoad(CommonCallback load_callback) {
 
 void grfSetOnExit(CommonCallback exit_callback) {
     callbackOnExit = exit_callback;
+}
+
+void grfSetOnMouseDown(MouseButtonCallback mouse_callback) {
+    callbackOnMouseDown = mouse_callback;
+}
+
+void grfSetOnMouseUp(MouseButtonCallback mouse_callback) {
+    callbackOnMouseUp = mouse_callback;
+}
+
+void grfSetOnMouseMove(MouseMoveCallback mouse_callback) {
+    callbackOnMouseMove = mouse_callback;
 }
 
 void grfSetFillColor(uint8_t r, uint8_t g, uint8_t b) {
@@ -195,9 +213,9 @@ int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
 }
 
 void grfBeginDraw() {
-    paintRect.left = 0;
+    paintRect.left = clientWidth;
     paintRect.right = 0;
-    paintRect.top = 0;
+    paintRect.top = clientHeight;
     paintRect.bottom = 0;
     isDrawing = 1;
 }
@@ -224,7 +242,7 @@ void grfDrawImage(GRFImage image, int x, int y, GRFRect* fragment) {
             paintRect.right = x + fragment->w;
         }
         if (y + fragment->h > paintRect.bottom) {
-            paintRect.bottom = x + fragment->h;
+            paintRect.bottom = y + fragment->h;
         }
     } else {
         BitBlt(backbufferHdc, x, y, image->width, image->height, imageHdc, 0, 0, SRCCOPY);
@@ -272,12 +290,28 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
                    paintPs.rcPaint.top,
                    SRCCOPY);
             EndPaint(hWindow, &paintPs);
-            /*grfBeginDraw();
-
-            (*callbackOnDraw)(backbufferHdc, &paintPs);
-
-            grfEndDraw();*/
         }
+            return 0;
+        case WM_LBUTTONDOWN:
+            callbackOnMouseDown(GRF_BUTTON_LEFT, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            return 0;
+        case WM_RBUTTONDOWN:
+            callbackOnMouseDown(GRF_BUTTON_RIGHT, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            return 0;
+        case WM_MBUTTONDOWN:
+            callbackOnMouseDown(GRF_BUTTON_MIDDLE, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            return 0;
+        case WM_LBUTTONUP:
+            callbackOnMouseUp(GRF_BUTTON_LEFT, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            return 0;
+        case WM_RBUTTONUP:
+            callbackOnMouseUp(GRF_BUTTON_RIGHT, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            return 0;
+        case WM_MBUTTONUP:
+            callbackOnMouseUp(GRF_BUTTON_MIDDLE, GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            return 0;
+        case WM_MOUSEMOVE:
+            callbackOnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
             return 0;
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);

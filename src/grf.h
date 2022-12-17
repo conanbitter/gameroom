@@ -8,13 +8,19 @@
  *                         *
 \***************************/
 
-#ifndef APPWINDOW_H
-#define APPWINDOW_H
+#ifndef GRF_H
+#define GRF_H
 
 #define UNICODE
 
 #include <windows.h>
 #include <stdint.h>
+
+enum {
+    GRF_BUTTON_LEFT = 1,
+    GRF_BUTTON_RIGHT = 2,
+    GRF_BUTTON_MIDDLE = 3
+};
 
 typedef void (*DrawCallback)(HDC, LPPAINTSTRUCT);
 typedef void (*CommonCallback)();
