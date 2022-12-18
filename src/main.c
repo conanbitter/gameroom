@@ -7,6 +7,7 @@
 HINSTANCE app_instance;
 GRFImage img;
 GRFRect rct, oldr;
+int keyy = 10;
 
 void OnLoad() {
     // Load main atlas
@@ -51,6 +52,20 @@ void OnMouseMove(int x, int y) {
     oldr.y = y;
 }
 
+void OnKeyDown(int key) {
+    grfBeginDraw();
+    if (key == GRF_KEY_C) grfDrawImage(img, 40, keyy, &rct);
+    if (key == GRF_KEY_V) grfDrawImage(img, 50, keyy, &rct);
+    grfEndDraw();
+    keyy += 20;
+}
+
+void OnKeyUp(int key) {
+    grfBeginDraw();
+    grfDrawImage(img, 70, keyy, &rct);
+    grfEndDraw();
+}
+
 void OnFinish() {
     grfFreeImage(img);
 }
@@ -58,9 +73,11 @@ void OnFinish() {
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     app_instance = hInstance;
 
-    grfSetOnMouseDown(&OnMouseDown);
-    grfSetOnMouseUp(&OnMouseUp);
-    grfSetOnMouseMove(&OnMouseMove);
+    // grfSetOnMouseDown(&OnMouseDown);
+    // grfSetOnMouseUp(&OnMouseUp);
+    // grfSetOnMouseMove(&OnMouseMove);
+    grfSetOnKeyDown(&OnKeyDown);
+    grfSetOnKeyUp(&OnKeyUp);
     grfSetOnLoad(&OnLoad);
     grfSetOnExit(&OnFinish);
 

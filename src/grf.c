@@ -8,6 +8,7 @@ void dummyOnDraw(HDC hdc, LPPAINTSTRUCT ps) {}
 void dummyCallback() {}
 void dummyOnMouseButton(int button, int x, int y) {}
 void dummyOnMouseMove(int x, int y) {}
+void dummyOnKey(int key) {}
 
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 static DrawCallback callbackOnDraw = &dummyOnDraw;
@@ -16,6 +17,8 @@ static CommonCallback callbackOnExit = &dummyCallback;
 static MouseButtonCallback callbackOnMouseDown = &dummyOnMouseButton;
 static MouseButtonCallback callbackOnMouseUp = &dummyOnMouseButton;
 static MouseMoveCallback callbackOnMouseMove = &dummyOnMouseMove;
+static KeyboardCallback callbackOnKeyDown = &dummyOnKey;
+static KeyboardCallback callbackOnKeyUp = &dummyOnKey;
 
 static int isLoaded = 0;
 static HBRUSH backgroundBrush;
@@ -82,6 +85,14 @@ void grfSetOnMouseUp(MouseButtonCallback mouse_callback) {
 
 void grfSetOnMouseMove(MouseMoveCallback mouse_callback) {
     callbackOnMouseMove = mouse_callback;
+}
+
+void grfSetOnKeyDown(KeyboardCallback key_callback) {
+    callbackOnKeyDown = key_callback;
+}
+
+void grfSetOnKeyUp(KeyboardCallback key_callback) {
+    callbackOnKeyUp = key_callback;
 }
 
 void grfSetFillColor(uint8_t r, uint8_t g, uint8_t b) {
@@ -343,6 +354,14 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
             return 0;
         case WM_MOUSEMOVE:
             callbackOnMouseMove(GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam));
+            return 0;
+        case WM_KEYDOWN:
+            if (!(lParam & (0x1 << 30))) {
+                callbackOnKeyDown(wParam);
+            }
+            return 0;
+        case WM_KEYUP:
+            callbackOnKeyUp(wParam);
             return 0;
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
