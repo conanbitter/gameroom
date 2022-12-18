@@ -224,7 +224,7 @@ typedef struct {
 
 int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height);
 void grfSetFrameSize(int width, int height);
-void grfSetTitle(const char* title);
+void grfSetTitle(const wchar_t* title);
 
 void appSetClbDraw(DrawCallback draw_callback);
 void grfSetOnUpdate(UpdateCallback update_callback, float speed);

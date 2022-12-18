@@ -366,3 +366,52 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);
 }
+
+void grfSetTitle(const wchar_t* title) {
+    SetWindowText(hWindow, title);
+}
+
+void grfSetFrameSize(int width, int height) {
+    if ((clientWidth == width) && (clientHeight == height)) return;
+    clientWidth = width;
+    clientHeight = height;
+    RECT wRect;
+    GetWindowRect(hWindow, &wRect);
+    int old_width = wRect.right - wRect.left;
+    int old_height = wRect.bottom - wRect.top;
+    RECT newRect = {
+        .left = 0,
+        .top = 0,
+        .right = width,
+        .bottom = height};
+    AdjustWindowRectEx(&newRect, WIN_STYLE, FALSE, WS_EX_OVERLAPPEDWINDOW);
+    int new_width = newRect.right - newRect.left;
+    int new_height = newRect.bottom - newRect.top;
+    int new_x = wRect.left - (new_width - old_width) / 2;
+    int new_y = wRect.top - (new_height - old_height) / 2;
+    LONG screenWidth = GetSystemMetrics(SM_CXSCREEN);
+    LONG screenHeight = GetSystemMetrics(SM_CYSCREEN);
+    if (new_x < 0) {
+        new_x = 0;
+    }
+    if (new_y < 0) {
+        new_y = 0;
+    }
+    if (new_x + new_width > screenWidth) {
+        new_x = screenWidth - new_width;
+    }
+    if (new_y + new_height > screenHeight) {
+        new_y = screenHeight - new_height;
+    }
+
+    HDC wdc = GetDC(hWindow);
+    CreateBackbufferImage(wdc, width, height);
+
+    MoveWindow(
+        hWindow,
+        new_x,
+        new_y,
+        new_width,
+        new_height,
+        TRUE);
+}

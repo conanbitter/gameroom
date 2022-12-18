@@ -53,6 +53,16 @@ void OnMouseMove(int x, int y) {
 }
 
 void OnKeyDown(int key) {
+    if (key == GRF_KEY_T) {
+        grfSetTitle(L"New title");
+    };
+
+    if (key == GRF_KEY_RETURN) {
+        grfSetFrameSize(500, 500);
+    };
+    if (key == GRF_KEY_L) {
+        grfSetFrameSize(320, 320);
+    };
     grfBeginDraw();
     if (key == GRF_KEY_C) grfDrawImage(img, 40, keyy, &rct);
     if (key == GRF_KEY_V) grfDrawImage(img, 50, keyy, &rct);
