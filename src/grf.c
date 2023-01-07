@@ -3,6 +3,7 @@
 
 #define CLASS_NAME L"GameRoom"
 #define WIN_STYLE (WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_MINIMIZEBOX)
+#define TIMER_UPDATE 1
 
 void dummyOnDraw(HDC hdc, LPPAINTSTRUCT ps) {}
 void dummyCallback() {}
@@ -19,6 +20,7 @@ static MouseButtonCallback callbackOnMouseUp = &dummyOnMouseButton;
 static MouseMoveCallback callbackOnMouseMove = &dummyOnMouseMove;
 static KeyboardCallback callbackOnKeyDown = &dummyOnKey;
 static KeyboardCallback callbackOnKeyUp = &dummyOnKey;
+static CommonCallback callbackOnUpdate = &dummyCallback;
 
 static int isLoaded = 0;
 static HBRUSH backgroundBrush;
@@ -37,6 +39,7 @@ static int clientHeight;
 static HDC imageHdc;
 static RECT paintRect;
 static int isDrawing = 0;
+static int updateSpeed = 1000;
 
 static void CreateBackbufferImage(HDC mainHdc, int width, int height) {
     if (backbufferBitmap) {
@@ -93,6 +96,11 @@ void grfSetOnKeyDown(KeyboardCallback key_callback) {
 
 void grfSetOnKeyUp(KeyboardCallback key_callback) {
     callbackOnKeyUp = key_callback;
+}
+
+void grfSetOnUpdate(CommonCallback update_callback, int speed) {
+    callbackOnUpdate = update_callback;
+    grfEnableUpdate(speed);
 }
 
 void grfSetFillColor(uint8_t r, uint8_t g, uint8_t b) {
@@ -207,6 +215,10 @@ int grfStart(HINSTANCE hInstance, const wchar_t* title, int width, int height) {
     ShowWindow(hWindow, SW_SHOWNORMAL);
     UpdateWindow(hWindow);
 
+    if (updateSpeed != GRF_TIMER_DISABLE) {
+        SetTimer(hWindow, TIMER_UPDATE, updateSpeed, NULL);
+    }
+
     // Run the message loop.
 
     MSG msg;
@@ -297,6 +309,23 @@ void grfFill(GRFRect* area) {
     }
 }
 
+void grfEnableUpdate(int speed) {
+    if (speed == GRF_TIMER_DISABLE) {
+        grfDisableUpdate();
+        return;
+    }
+    updateSpeed = speed;
+    if (isLoaded) {
+        SetTimer(hWindow, TIMER_UPDATE, updateSpeed, NULL);
+    }
+}
+void grfDisableUpdate() {
+    updateSpeed = GRF_TIMER_DISABLE;
+    if (isLoaded) {
+        KillTimer(hWindow, TIMER_UPDATE);
+    }
+}
+
 static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam) {
     switch (uMsg) {
         case WM_CREATE:
@@ -362,6 +391,11 @@ static LRESULT CALLBACK WindowProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM l
             return 0;
         case WM_KEYUP:
             callbackOnKeyUp(wParam);
+            return 0;
+        case WM_TIMER:
+            if (wParam == TIMER_UPDATE) {
+                callbackOnUpdate();
+            }
             return 0;
     }
     return DefWindowProc(hwnd, uMsg, wParam, lParam);

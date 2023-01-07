@@ -200,9 +200,12 @@ enum {
     GRF_KEY_OEM_CLEAR = 0xFE
 };
 
+enum {
+    GRF_TIMER_DISABLE = 0
+};
+
 typedef void (*DrawCallback)(HDC, LPPAINTSTRUCT);
 typedef void (*CommonCallback)();
-typedef void (*UpdateCallback)(float);
 typedef void (*MouseButtonCallback)(int, int, int);
 typedef void (*MouseMoveCallback)(int, int);
 typedef void (*KeyboardCallback)(int);
@@ -227,8 +230,9 @@ void grfSetFrameSize(int width, int height);
 void grfSetTitle(const wchar_t* title);
 
 void appSetClbDraw(DrawCallback draw_callback);
-void grfSetOnUpdate(UpdateCallback update_callback, float speed);
-void grfSetUpdateEnabled(int enabled);
+void grfSetOnUpdate(CommonCallback update_callback, int speed);
+void grfEnableUpdate(int speed);
+void grfDisableUpdate();
 void grfSetOnMouseMove(MouseMoveCallback move_callback);
 void grfSetOnMouseDown(MouseButtonCallback mouse_callback);
 void grfSetOnMouseUp(MouseButtonCallback mouse_callback);

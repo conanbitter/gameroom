@@ -80,6 +80,20 @@ void OnFinish() {
     grfFreeImage(img);
 }
 
+void OnUpdate() {
+    grfBeginDraw();
+    grfDrawImage(img, 40, keyy, &rct);
+    grfEndDraw();
+    keyy += 20;
+    if (keyy > 100) {
+        if (keyy > 200) {
+            grfDisableUpdate();
+        } else {
+            grfEnableUpdate(500);
+        }
+    }
+}
+
 int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine, int nCmdShow) {
     app_instance = hInstance;
 
@@ -90,6 +104,7 @@ int WINAPI wWinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLine
     grfSetOnKeyUp(&OnKeyUp);
     grfSetOnLoad(&OnLoad);
     grfSetOnExit(&OnFinish);
+    grfSetOnUpdate(&OnUpdate, 1000.0);
 
     grfSetFillColor(50, 50, 70);
 
