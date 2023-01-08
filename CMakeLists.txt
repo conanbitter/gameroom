@@ -4,15 +4,6 @@ project(gameroom VERSION 0.1 LANGUAGES C RC)
 
 set(EXECUTABLE_OUTPUT_PATH ./${CMAKE_BUILD_TYPE})
 
-add_executable(gameroom
-    res/resource.rc
-    src/main.c
-    src/grf.h
-    src/grf.c
-)
+add_subdirectory(grf)
 
-target_link_options(gameroom PRIVATE -SUBSYSTEM:WINDOWS)
-
-if(NOT CMAKE_BUILD_TYPE STREQUAL "Debug")
-    set_property(TARGET gameroom PROPERTY MSVC_RUNTIME_LIBRARY "MultiThreaded")
-endif()
+add_subdirectory(minefield)
